@@ -3,6 +3,7 @@ from . import models
 from django.http.response import JsonResponse
 
 import json
+import datetime
 
 
 def store(request):
@@ -65,4 +66,33 @@ def updateItem(request):
     if orderitem.quantity <= 0:
         orderitem.delete()
 
+    return JsonResponse(data, safe=False)
+
+
+def processOrder(request):
+    data = json.loads(request.body)
+
+    if request.user.is_authenticated:
+        customer = request.user.customer
+    else:
+        customer = models.Customer.objects.get(email=data['form']['email'])
+
+    order = models.Order.objects.get(customer=customer, complete=False)
+
+    total = int(data['form']['total'])
+    transaction_id = datetime.datetime.now().timestamp()
+    order.transaction_id = transaction_id
+
+    if total == order.get_cart_total:
+        order.complete = True
+    order.save()
+
+    models.ShippingInfo.objects.create(
+        customer=customer,
+        order=order,
+        address=data['shipping']['address'],
+        city=data['shipping']['city'],
+        state=data['shipping']['state'],
+        zipcode=data['shipping']['zipcode']
+    )
     return JsonResponse(data, safe=False)
