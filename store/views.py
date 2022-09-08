@@ -11,12 +11,13 @@ def store(request):
     if request.user.is_authenticated:
         customer = request.user.customer
         order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
-        cartItems = order.get_cart_items
+
     else:
         order = {
             'get_cart_items': 0,
             'get_cart_total': 0
         }
+    cartItems = order.get_cart_items
     context = {
         'products': products,
         'cartItems': cartItems,
@@ -29,12 +30,13 @@ def cart(request):
         customer = request.user.customer
         order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
         orderitems = order.orderitem_set.all()
-        cartItems = order.get_cart_items
+
     else:
         order = {
             'get_cart_items': 0,
             'get_cart_total': 0
         }
+    cartItems = order.get_cart_items
     context = {
         'order': order,
         'orderitems': orderitems,
@@ -48,12 +50,13 @@ def checkout(request):
         customer = request.user.customer
         order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
         orderitems = order.orderitem_set.all()
-        cartItems = order.get_cart_items
+
     else:
         order = {
             'get_cart_items': 0,
             'get_cart_total': 0
         }
+    cartItems = order.get_cart_items
     context = {
         'order': order,
         'orderitems': orderitems,
