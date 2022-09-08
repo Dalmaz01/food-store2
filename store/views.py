@@ -1,6 +1,10 @@
-from django.shortcuts import render
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.urls import reverse
+
 from . import models
 from django.http.response import JsonResponse
+from django.contrib.auth.models import User
 
 import json
 import datetime
@@ -121,3 +125,67 @@ def processOrder(request):
         zipcode=data['shipping']['zipcode']
     )
     return JsonResponse(data, safe=False)
+
+
+def register_page(request):
+    '''
+    Контроллер, отвечающий за логику:
+    - отображения страницы регистрации
+    - регистрации пользователя
+    '''
+    if request.method == "POST":
+        # Регистрация пользователя при POST запросе
+        try:
+            username = request.POST.get("login", None)
+            password = request.POST.get("password", None)
+            email = request.POST.get("email", None)
+            name = request.POST.get("name", None)
+
+            user = User.objects.create_user(
+                username=username,
+                password=password
+            )
+
+            models.Customer.objects.create(
+                user=user,
+                name=name,
+                email=email
+            )
+            return redirect(reverse('store:login'))
+        except Exception as exc:
+            print("При создании пользователя произошла ошибка", request.POST, exc)
+            error = {
+                'error_code': exc,
+                'message': 'Проверьте корректность введенных данных'
+            }
+            return render(request, 'store/register.html', {"error": error})
+
+    # Возвратить страницу регистрации при GET запросе
+    return render(request, 'store/register.html', {})
+
+
+def login_page(request):
+    '''
+        Контроллер, отвечающий за логику:
+        - отображения страницы логина
+        - аутентификации пользователя
+    '''
+    if request.method == "GET":
+        return render(request, "store/login.html", {})
+    #if request.method == "POST":
+    else:
+        # Аутентификация пользователя при POST запросе
+        username = request.POST.get("login", None)
+        password = request.POST.get("password", None)
+        user = authenticate(request, username=username, password=password)
+
+        # Если пользователь существует и данные верны: перенаправить в страницу профиля
+        if user:
+            login(request, user)
+            return redirect(reverse("store:store"))
+
+        # Если данные неверны: возвратить сообщение о некорректных данных
+        return render(request, "store/login.html", {"error": "Неправильный логин или пароль"})
+    # else:
+    # # Возвратить страницу логина при GET запросе
+    #     return render(request, "main/login.html", {})
