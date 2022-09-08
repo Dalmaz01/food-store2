@@ -58,6 +58,7 @@ def checkout(request):
             'get_cart_items': 0,
             'get_cart_total': 0
         }
+        orderitems = []
     #cartItems = order.get_cart_items
     context = {
         'order': order,
