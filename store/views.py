@@ -12,6 +12,11 @@ def store(request):
         customer = request.user.customer
         order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
         cartItems = order.get_cart_items
+    else:
+        order = {
+            'get_cart_items': 0,
+            'get_cart_total': 0
+        }
     context = {
         'products': products,
         'cartItems': cartItems,
@@ -25,6 +30,11 @@ def cart(request):
         order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
         orderitems = order.orderitem_set.all()
         cartItems = order.get_cart_items
+    else:
+        order = {
+            'get_cart_items': 0,
+            'get_cart_total': 0
+        }
     context = {
         'order': order,
         'orderitems': orderitems,
@@ -39,6 +49,11 @@ def checkout(request):
         order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
         orderitems = order.orderitem_set.all()
         cartItems = order.get_cart_items
+    else:
+        order = {
+            'get_cart_items': 0,
+            'get_cart_total': 0
+        }
     context = {
         'order': order,
         'orderitems': orderitems,
