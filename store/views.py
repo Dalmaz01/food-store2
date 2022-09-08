@@ -8,9 +8,10 @@ import datetime
 
 def store(request):
     products = models.Product.objects.all()
-    customer = request.user.customer
-    order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
-    cartItems = order.get_cart_items
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
+        cartItems = order.get_cart_items
     context = {
         'products': products,
         'cartItems': cartItems,
@@ -19,10 +20,11 @@ def store(request):
 
 
 def cart(request):
-    customer = request.user.customer
-    order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
-    orderitems = order.orderitem_set.all()
-    cartItems = order.get_cart_items
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
+        orderitems = order.orderitem_set.all()
+        cartItems = order.get_cart_items
     context = {
         'order': order,
         'orderitems': orderitems,
@@ -32,10 +34,11 @@ def cart(request):
 
 
 def checkout(request):
-    customer = request.user.customer
-    order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
-    orderitems = order.orderitem_set.all()
-    cartItems = order.get_cart_items
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
+        orderitems = order.orderitem_set.all()
+        cartItems = order.get_cart_items
     context = {
         'order': order,
         'orderitems': orderitems,
@@ -49,13 +52,14 @@ def updateItem(request):
     productId = data['productId']
     action = data['action']
 
-    customer = request.user.customer
-    order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
-    product = models.Product.objects.get(id=productId)
-    orderitem, created = models.OrderItem.objects.get_or_create(
-        order=order,
-        product=product,
-    )
+    if request.user.is_authenticated:
+        customer = request.user.customer
+        order, created = models.Order.objects.get_or_create(customer=customer, complete=False)
+        product = models.Product.objects.get(id=productId)
+        orderitem, created = models.OrderItem.objects.get_or_create(
+            order=order,
+            product=product,
+        )
 
     if action == 'add':
         orderitem.quantity += 1
